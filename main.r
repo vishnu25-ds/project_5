@@ -26,3 +26,25 @@ library(factoextra)
 fast_food_num=fast_food1[,-c(1,2,17)]
 summary(fast_food_num)
 ```
+
+```{r}
+df <- scale(fast_food_num)
+
+k2 <- kmeans(df, centers = 2, nstart = 25)
+str(k2)
+```
+
+
+```{r}
+
+if (length(unique(k2$cluster)) < 2) {
+  stop("Only one cluster was formed. Try adjusting the number of centers or check your data.")
+}
+
+aggregate(fast_food_num, by=list(cluster=k2$cluster), mean)
+df_final <- cbind(fast_food1, cluster = k2$cluster)
+head(df_final)
+
+df_final$cluster <- as.factor(df_final$cluster)
+
+```
