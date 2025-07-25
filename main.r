@@ -96,3 +96,51 @@ print(paste('Accuracy for test', round(accuracy_Test,3)))
 
 ```
 
+
+```{r}
+##########################Random Forest########################
+
+# Convert 'cluster' variable to factor
+df_final$cluster <- factor(df_final$cluster)
+
+# Check levels of factor variables
+for (col in names(df_final)) {
+  if (is.factor(df_final[[col]]) && length(levels(df_final[[col]])) < 2) {
+    print(paste("Variable", col, "has only one level. Adding a dummy level."))
+    levels(df_final[[col]]) <- c(levels(df_final[[col]]), "DummyLevel")
+  }
+}
+
+# Split data into train and test sets
+split <- resample_partition(df_final, c(train = 0.75, test = 0.25))
+train_df <- data.frame(split$train)
+test_df <- data.frame(split$test)
+
+# Load the caret package
+library(caret)
+
+# Define the train control
+trControl <- trainControl(method = "cv",
+                          number = 10,
+                          search = "grid")
+
+# Now you can proceed with your code using the train control object trControl
+
+# Train the model (classification)
+rf_default <- train(cluster ~ .,
+                    data = train_df,
+                    method = "rf",
+                    metric = "Accuracy",  # Use accuracy for classification
+                    trControl = trControl)
+
+# Make predictions on the test set
+prediction <- predict(rf_default, test_df)
+
+# Evaluate the model
+confusionMatrix(prediction, test_df$cluster)
+
+
+
+
+
+```
